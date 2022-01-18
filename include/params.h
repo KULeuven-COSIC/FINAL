@@ -123,10 +123,10 @@ class Param
         {
             ZZ_pX poly;
             // polynomial modulus of the ring-based scheme
-            //element of Z_(q_boot)
+            // element of Z_(q_boot)
             ZZ_p coef;
             coef.init(ZZ(q_boot));
-            //polynomial modulus X^N+1
+            // polynomial modulus X^N+1
             coef = 1;
             SetCoeff(poly, 0, coef);
             SetCoeff(poly, N, coef);
@@ -152,7 +152,7 @@ class Param
 
         // ciphertext modulus of the base scheme used for encryption
         int q_base;
-        //half of the above modulus
+        // half of the above modulus
         int half_q_base;
         // dimension of the ciphertext space
         int n;

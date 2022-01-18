@@ -80,7 +80,6 @@ class SchemeLWE
         SchemeLWE()
         {
             KeyGen keygen(parLWE);
-            //sampler = Sampler(param);
 
             keygen.get_sk_base(sk_base);
             keygen.get_sk_boot(sk_boot);

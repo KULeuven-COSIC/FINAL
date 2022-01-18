@@ -9,8 +9,6 @@
 
 using namespace std;
 
-//TODO: description
-
 class FFT_engine
 {
     int fft_dim;
@@ -23,7 +21,6 @@ class FFT_engine
     fftw_complex* out_array;
 
 public:
-    //map<int, vector<FFTPoly>> x_powers;
     vector<FFTPoly> pos_powers;
     vector<FFTPoly> neg_powers;
 

@@ -103,7 +103,6 @@ class SchemeNTRU
     SchemeNTRU()
     {
         KeyGen keygen(parNTRU);
-        //sampler = Sampler(param);
 
         keygen.get_sk_base(sk_base);
         keygen.get_sk_boot(sk_boot);
