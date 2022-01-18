@@ -1,2 +1,2 @@
 # FINAL
-The fully homomorhic encryption scheme based on NTRU and LWE.
+The fully homomorphic encryption scheme based on NTRU and LWE.
