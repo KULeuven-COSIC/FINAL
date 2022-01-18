@@ -20,7 +20,6 @@ FFT_engine::FFT_engine(const int dim): fft_dim(dim)
     for(int i = 0; i < dim; i++)
     {
         ModQPoly x_power(dim,0);
-        //x_power[0] = -1;
         x_power[i] += 1;
         FFTPoly x_power_fft(fft_dim2);
         to_fft(x_power_fft, x_power);
@@ -30,7 +29,6 @@ FFT_engine::FFT_engine(const int dim): fft_dim(dim)
         to_fft(x_power_fft, x_power);
         neg_powers[i] = x_power_fft;
     }
-    //x_powers.insert({{-1,neg_powers}, {1,pos_powers}});
 }
 
 void FFT_engine::to_fft(FFTPoly& out, const ModQPoly& in) const
@@ -48,11 +46,10 @@ void FFT_engine::to_fft(FFTPoly& out, const ModQPoly& in) const
     }
     fftw_execute(plan_to_fft);
     int tmp = 1;
-    //for (int i = 0; i < fft_dim2; i++)
     for (auto it = out.begin(); it < out.end(); ++it)
     {
         fftw_complex& out_z = out_arr[tmp];
-        complex<double>& outi = *it; //out[i];
+        complex<double>& outi = *it;
         outi.real(out_z[0]);
         outi.imag(out_z[1]);
         tmp += 2;
@@ -67,7 +64,6 @@ void FFT_engine::from_fft(vector<long>& out, const FFTPoly& in) const
     int N = fft_dim;
     int Nd = double(N);
 
-    //for (int i = 0; i < fft_dim2; ++i)
     for (auto it = in.begin(); it < in.end(); ++it) 
     {
         //std::cout << "i: " << i << ", number: " << in[i] << std::endl;
@@ -163,7 +159,6 @@ void operator *=(FFTPoly& a, const FFTPoly& b)
         a[i]*=b[i];
 }
 
-// TODO: make a test
 FFTPoly operator *(const FFTPoly& a, const int b)
 {
     FFTPoly res(a.size());

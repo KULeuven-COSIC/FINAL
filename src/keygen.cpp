@@ -44,18 +44,18 @@ void KeyGen::get_sk_base(SKey_base_LWE& sk_base)
 
 void KeyGen::get_ksk(KSKey_NTRU& ksk, const SKey_base_NTRU& sk_base, const SKey_boot& sk_boot)
 {
-    cout << "Started key-switching key generation" << endl;
+    //cout << "Started key-switching key generation" << endl;
     clock_t start = clock();
     // reset key-switching key
     ksk.clear();
     ksk = ModQMatrix(param.Nl, vector<int>(param.n,0));
     vector<vector<long>> ksk_long(param.Nl, vector<long>(param.n,0L));
-    cout << "Reset time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //cout << "Reset time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // noise matrix G as in the paper
     ModQMatrix G(param.Nl, vector<int>(param.n,0L));
     sampler.get_ternary_matrix(G);
-    cout << "G gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //cout << "G gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
     
     // matrix G + P * Phi(f) * E as in the paper
     int coef_w_pwr = sk_boot.sk[0];
@@ -73,7 +73,7 @@ void KeyGen::get_ksk(KSKey_NTRU& ksk, const SKey_base_NTRU& sk_base, const SKey_
             coef_w_pwr *= Param::B_ksk;
         }
     }
-    cout << "G+P time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //cout << "G+P time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // parameters of the block optimization of matrix multiplication
     int block = 4;
@@ -101,7 +101,7 @@ void KeyGen::get_ksk(KSKey_NTRU& ksk, const SKey_base_NTRU& sk_base, const SKey_
                 k_row[blocks+j] += (coef * f_row[blocks+j]);
         }
     }
-    cout << "After K time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //cout << "After K time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // reduce modulo q_base
     for (int i = 0; i < param.Nl; i++)
@@ -111,7 +111,7 @@ void KeyGen::get_ksk(KSKey_NTRU& ksk, const SKey_base_NTRU& sk_base, const SKey_
 
 void KeyGen::get_ksk(KSKey_LWE& ksk, const SKey_base_LWE& sk_base, const SKey_boot& sk_boot)
 {
-    cout << "Started key-switching key generation" << endl;
+    //cout << "Started key-switching key generation" << endl;
     clock_t start = clock();
     // reset key-switching key
     ksk.A.clear();
@@ -122,11 +122,11 @@ void KeyGen::get_ksk(KSKey_LWE& ksk, const SKey_base_LWE& sk_base, const SKey_bo
         ksk.A.push_back(row);
     }
     ksk.b = vector<int>(param.Nl, 0L);
-    cout << "Reset time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //cout << "Reset time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // noise matrix G as in the paper
     sampler.get_uniform_matrix(ksk.A);
-    cout << "A gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //cout << "A gen time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
     
     // matrix P * f_0 as in the paper
     vector<int> Pf0(param.Nl, 0L);
@@ -145,7 +145,7 @@ void KeyGen::get_ksk(KSKey_LWE& ksk, const SKey_base_LWE& sk_base, const SKey_bo
             coef_w_pwr *= Param::B_ksk;
         }
     }
-    cout << "Pf0 time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    //cout << "Pf0 time: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 
     // A*s_base + e + Pf0 as in the paper
     normal_distribution<double> gaussian_sampler(0.0, Param::e_st_dev);
@@ -257,7 +257,7 @@ void KeyGen::get_bsk(BSKey_NTRU& bsk, const SKey_base_NTRU& sk_base, const SKey_
         coef_counter += param.bsk_partition[iBase];
     }    
 
-    cout << "Bootstrapping generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    cout << "Bootstrapping key generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void KeyGen::get_bsk(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_boot& sk_boot)
@@ -344,7 +344,7 @@ void KeyGen::get_bsk(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_bo
         coef_counter += param.bsk_partition[iBase];
     }    
 
-    cout << "Bootstrapping generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
+    cout << "Bootstrapping key generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
 
 void KeyGen::get_bsk2(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_boot& sk_boot)

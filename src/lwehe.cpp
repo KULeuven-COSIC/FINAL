@@ -118,17 +118,17 @@ void external_product(vector<long>& res, const vector<int>& poly, const vector<F
         for (int i = 0; i < N; ++i)
         {
             int& abs_val = poly_abs[i];
-            digit = abs_val & mask; //poly_abs[i] % b;
+            digit = abs_val & mask;
             if (digit > bound)
             {
                 poly_decomp[i] = (poly_sign[i] == 1) ? (digit - b): (b - digit);
                 abs_val >>= shift;
-                ++abs_val; //(abs_val - digit)/b + 1;
+                ++abs_val;
             }
             else
             {
                 poly_decomp[i] = (poly_sign[i] == 1) ? digit: -digit;
-                abs_val >>= shift; //(abs_val - digit)/b;
+                abs_val >>= shift;
             }
         }
         fftN.to_fft(tmp_fft, poly_decomp);
@@ -136,7 +136,6 @@ void external_product(vector<long>& res, const vector<int>& poly, const vector<F
         res_fft += tmp_fft;
     }
     fftN.from_fft(res, res_fft);
-    //mod_q_boot(poly);
 }
 
 void SchemeLWE::key_switch(Ctxt_LWE& ct, const ModQPoly& poly) const
@@ -200,65 +199,6 @@ void SchemeLWE::key_switch(Ctxt_LWE& ct, const ModQPoly& poly) const
     ct.b = parLWE.mod_q_base(b);
 }
 
-/*
-// debugger functions
-    void print(const vector<int>& vec)
-    {
-        for (size_t i = 0; i < vec.size(); i++)
-        {
-            printf("[%zu] %d ", i, vec[i]);
-        }
-        cout << endl;
-    }
-    
-    void decrypt_poly_boot_and_print(const ModQPoly& ct, const SKey_boot& sk)
-    {
-        FFTPoly sk_fft;
-        fftN.to_fft(sk_fft, sk.sk);
-        FFTPoly ct_fft;
-        fftN.to_fft(ct_fft, ct);
-
-        FFTPoly output_fft;
-        output_fft = ct_fft * sk_fft;
-        vector<long> output;
-        vector<int> output_int;
-        fftN.from_fft(output, output_fft);
-        parLWE.mod_q_boot(output_int, output);
-        print(output_int);
-    }
-
-    void decrypt_poly_base_and_print(const ModQPoly& ct, const SKey_boot& sk)
-    {
-        FFTPoly sk_fft;
-        fftN.to_fft(sk_fft, sk.sk);
-        FFTPoly ct_fft;
-        fftN.to_fft(ct_fft, ct);
-
-        FFTPoly output_fft;
-        output_fft = ct_fft * sk_fft;
-        ModQPoly output;
-        fftN.from_fft(output, output_fft);
-        mod_q_base(output);
-        print(output);
-    }
-
-void decryptN2(const Ctxt_LWE& ct, const SKey_base_LWE& sk)
-{
-    int output = ct.b;
-    for (int i = 0; i < lwe_he::n; i++)
-    {
-        output += ct.a[i] * sk[i];
-    }
-    output = output%parLWE.N2;
-    if (output > parLWE.N)
-        output -= parLWE.N2;
-    if (output <= -parLWE.N)
-        output += parLWE.N2;
-    cout << output << endl;
-}
-// end debugger functions
-*/
-
 void SchemeLWE::bootstrap(Ctxt_LWE& ct) const
 {
     //clock_t start = clock();
@@ -304,10 +244,6 @@ void SchemeLWE::bootstrap(Ctxt_LWE& ct) const
         Bd = double(B);
         shift = parLWE.shift_bsk[iBase];
         l = parLWE.l_bsk[iBase];
-        //vector<complex<double>> w_powers(l);
-        //w_powers[0] = complex<double>(1.0,0.0);
-        //for (int i = 1; i < l; i++)
-        //    w_powers[i] = w_powers[i-1] * Bd;
         const vector<NGSFFTctxt>& bk_coef_row = boot_key[iBase];
         for (int iCoef = 0; iCoef < parLWE.bsk_partition[iBase]; ++iCoef)
         { 
@@ -359,13 +295,9 @@ void SchemeLWE::bootstrap(Ctxt_LWE& ct) const
 
     //mod q_boot of the accumulator
     mod_q_boot(acc);
-
-    //decrypt_poly_boot_and_print(acc, sk_boot);
     
     //mod switch to q_base
     modulo_switch_to_base_lwe(acc);
-
-    //decrypt_poly_boot_and_print(acc, sk_boot);
     
     //key switch
     //auto start = clock();
@@ -420,10 +352,6 @@ void SchemeLWE::bootstrap2(Ctxt_LWE& ct) const
         Bd = double(B);
         shift = parLWE.shift_bsk[iBase];
         l = parLWE.l_bsk[iBase];
-        //vector<complex<double>> w_powers(l);
-        //w_powers[0] = complex<double>(1.0,0.0);
-        //for (int i = 1; i < l; i++)
-        //    w_powers[i] = w_powers[i-1] * Bd;
         const vector<NGSFFTctxt>& bk_coef_row = boot_key[iBase];
         vector<FFTPoly> mux_fft(l,FFTPoly(N2p1,complex<double>(0.0,0.0)));
         for (int iCoef = 0; iCoef < parLWE.bsk_partition[iBase]; iCoef+=2)
@@ -508,13 +436,9 @@ void SchemeLWE::bootstrap2(Ctxt_LWE& ct) const
 
     //mod q_boot of the accumulator
     mod_q_boot(acc);
-
-    //decrypt_poly_boot_and_print(acc, sk_boot);
     
     //mod switch to q_base
     modulo_switch_to_base_lwe(acc);
-
-    //decrypt_poly_boot_and_print(acc, sk_boot);
     
     //key switch
     //auto start = clock();

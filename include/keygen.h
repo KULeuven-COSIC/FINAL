@@ -114,7 +114,7 @@ class KeyGen
         void get_bsk(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_boot& sk_boot);
 
         /**
-         * Generate a bootstrapping key
+         * Generate a bootstrapping key (EXPERIMENTAL)
          * @param[out] bsk bootstrapping key.
          * @param[in] sk_base secret key of the base scheme.
          * @param[in] sk_boot secret key of the bootstrapping scheme.

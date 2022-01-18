@@ -81,52 +81,6 @@ int SchemeNTRU::decrypt(const Ctxt_NTRU& ct) const
     return output;
 }
 
-/*
-void SchemeNTRU::external_product(vector<long>& res, const vector<int>& poly, const vector<FFTPoly>& poly_vector, const int b, const int shift, const int l) const
-{ 
-    int N = Param::N;
-    int N2p1 = Param::N2p1;
-
-    ModQPoly poly_sign(N,0L);
-    ModQPoly poly_abs(N,0L);
-    for (int i = 0; i < N; i++)
-    {
-        const int& polyi = poly[i];
-        poly_abs[i] = abs(polyi);
-        poly_sign[i] = (polyi < 0)? -1 : 1;
-    }
-    FFTPoly res_fft(N2p1);
-    FFTPoly tmp_fft(N2p1);
-    int mask = b-1;
-    int bound = b >> 1;
-    int digit, sgn, abs_val;
-    vector<int> poly_decomp(N);
-    for (int j = 0; j < l; j++)
-    {
-        for (int i = 0; i < N; i++)
-        {
-            abs_val = poly_abs[i];
-            digit = abs_val & mask; //poly_abs[i] % b;
-            if (digit > bound)
-            {
-                poly_decomp[i] = (poly_sign[i] == 1) ? (digit - b): (b - digit);
-                poly_abs[i] = (abs_val >> shift) + 1; //(abs_val - digit)/b + 1;
-            }
-            else
-            {
-                poly_decomp[i] = (poly_sign[i] == 1) ? digit: -digit;
-                poly_abs[i] = abs_val >> shift; //(abs_val - digit)/b;
-            }
-        }
-        fftN.to_fft(tmp_fft, poly_decomp);
-        tmp_fft *= poly_vector[j];
-        res_fft += tmp_fft;
-    }
-    fftN.from_fft(res, res_fft);
-    //mod_q_boot(poly);
-}
-*/
-
 void SchemeNTRU::key_switch(Ctxt_NTRU& ct, const ModQPoly& poly) const
 {
     int N = Param::N;
@@ -181,87 +135,6 @@ void SchemeNTRU::key_switch(Ctxt_NTRU& ct, const ModQPoly& poly) const
     parNTRU.mod_q_base(ct.data, ct_long);
 }
 
-/*
-// debugger functions
-void print(const vector<int>& vec)
-{
-    for (size_t i = 0; i < vec.size(); i++)
-    {
-        printf("[%zu] %d ", i, vec[i]);
-    }
-    cout << endl;
-}
-void decrypt_poly_boot_and_print(const ModQPoly& ct, const SKey_boot& sk, const Param& param)
-{
-    FFTPoly sk_fft(Param::N2p1);
-    fftN.to_fft(sk_fft, sk.sk);
-    FFTPoly ct_fft(Param::N2p1);
-    fftN.to_fft(ct_fft, ct);
-
-    FFTPoly output_fft;
-    output_fft = ct_fft * sk_fft;
-    ModQPoly output;
-    vector<long> output_long;
-    fftN.from_fft(output_long, output_fft);
-    mod_q_boot(output, output_long);
-    print(output);
-}
-
-void decrypt_poly_base_and_print(const ModQPoly& ct, const Param& param, const SKey_boot& sk)
-{
-    FFTPoly sk_fft(Param::N2p1);
-    fftN.to_fft(sk_fft, sk.sk);
-    FFTPoly ct_fft(Param::N2p1);
-    fftN.to_fft(ct_fft, ct);
-
-    FFTPoly output_fft;
-    output_fft = ct_fft * sk_fft;
-    ModQPoly output;
-    vector<long> output_long;
-    fftN.from_fft(output_long, output_fft);
-    param.mod_q_base(output, output_long);
-    print(output);
-}
-
-void decryptN2(const Ctxt_NTRU& ct, const SKey_base_NTRU& sk)
-{
-    int N = Param::N;
-    int N2 = Param::N2;
-    int n = parNTRU.n;
-
-    int output = 0;
-    for (int i = 0; i < n; i++)
-    {
-        output += ct.data[i] * sk.sk[i][0];
-    }
-    output = output%N2;
-    if (output > N)
-        output -= N2;
-    if (output <= -N)
-        output += N2;
-    cout << output << endl;
-}
-
-void decrypt_base(const Ctxt_NTRU& ct, const SKey_base_NTRU& sk)
-{
-    int n = parNTRU.n;
-    int q_base = parNTRU.q_base;
-    int half_q_base= parNTRU.half_q_base;
-
-    int output = 0;
-    for (int i = 0; i < n; i++)
-    {
-        output += ct.data[i] * sk.sk[i][0];
-    }
-    output = output%q_base;
-    if (output > half_q_base)
-        output -= q_base;
-    if (output <= -half_q_base)
-        output += q_base;
-    cout << output << endl;
-}
-// end debugger functions
-*/
 void SchemeNTRU::mask_constant(Ctxt_NTRU& ct, int constant)
 {
     int n = parNTRU.n;
@@ -313,10 +186,6 @@ void SchemeNTRU::bootstrap(Ctxt_NTRU& ct) const
         Bd = double(B);
         shift = parNTRU.shift_bsk[iBase];
         l = parNTRU.l_bsk[iBase];
-        //vector<complex<double>> w_power_fft(l);
-        //w_power_fft[0] = complex<double>(1.0,0.0);
-        //for (int i = 1; i < l; i++)
-        //    w_power_fft[i] = w_power_fft[i-1] * Bd;
         const vector<vector<NGSFFTctxt>>& bk_coef_row = boot_key[iBase];
         vector<FFTPoly> mux_fft(l, FFTPoly(N2p1));
         for (int iCoef = 0; iCoef < parNTRU.bsk_partition[iBase]; ++iCoef)
