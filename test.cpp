@@ -1,12 +1,5 @@
 #include <iostream>
 #include <cassert>
-#include "params.h"
-#include "sampler.h"
-#include "keygen.h"
-#include "fft.h"
-#include "ntruhe.h"
-#include "lwehe.h"
-
 #include <time.h>
 #include <cstdint>
 #include <stdexcept>
@@ -14,6 +7,8 @@
 #include <limits.h>
 
 #include <NTL/ZZX.h>
+
+#include "FINAL.h"
 
 using namespace std;
 using namespace NTL;

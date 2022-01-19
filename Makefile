@@ -7,8 +7,11 @@ all: clean test
 clean:
 	$(RM) test test.o lwehe.o ntruhe.o fft.o sampler.o keygen.o
 
-test: include/params.h ntruhe.o lwehe.o keygen.o fft.o sampler.o
-	$(CCX) $(CCXFLAGS) -o test test.cpp ntruhe.o lwehe.o keygen.o fft.o sampler.o $(DEPS)
+test: FINAL.h libfinal.a
+	$(CCX) $(CCXFLAGS) -o test test.cpp libfinal.a $(DEPS)
+
+libfinal.a: include/params.h ntruhe.o lwehe.o keygen.o fft.o sampler.o
+	$(AR) -q libfinal.a ntruhe.o lwehe.o keygen.o fft.o sampler.o
 
 ntruhe.o: include/ntruhe.h keygen.o sampler.o lwehe.o src/ntruhe.cpp
 	$(CCX) $(CCXFLAGS) -c src/ntruhe.cpp
