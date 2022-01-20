@@ -272,7 +272,7 @@ void test_ntruhe_gate_helper(int in1, int in2, const SchemeNTRU& s, GateType g)
     float avg_time = 0.0;
     for (int i = 0; i < 100; i++)
     {
-        Ctxt_NTRU ct_res, ct1, ct2, ct_nand;
+        Ctxt_NTRU ct_res, ct1, ct2;
         s.encrypt(ct1, in1);
         s.encrypt(ct2, in2);
         
@@ -353,7 +353,7 @@ void test_lwehe_gate_helper(int in1, int in2, SchemeLWE& s, GateType g)
     float avg_time = 0.0;
     for (int i = 0; i < 100; i++)
     {
-        Ctxt_LWE ct_res, ct1, ct2, ct_nand;
+        Ctxt_LWE ct_res, ct1, ct2;
         s.encrypt(ct1, in1);
         s.encrypt(ct2, in2);
         
