@@ -29,7 +29,7 @@ int b2 = 1;
 
 // LWE encryption base scheme
 SchemeLWE s;
-// LWE ciphertext
+// LWE ciphertexts
 Ctxt_LWE ct1, ct2, ct_or, ct_nand, ct_xor;
 // Encryption of bits
 s.encrypt(ct1, b1);
