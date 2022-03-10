@@ -308,7 +308,7 @@ void test_ntruhe_gate_helper(int in1, int in2, const SchemeNTRU& s, GateType g)
             assert(output == (in1 | in2));
         }
     }
-    cout << "Avg. time" << avg_time/100.0 << endl;
+    cout << "Avg. time: " << avg_time/100.0 << endl;
 }
 
 void test_ntru_gate(GateType g)
@@ -389,7 +389,7 @@ void test_lwehe_gate_helper(int in1, int in2, SchemeLWE& s, GateType g)
             assert(output == (in1 | in2));
         }
     }
-    cout << "Avg. time" << avg_time/100.0 << endl;
+    cout << "Avg. time: " << avg_time/100.0 << endl;
 }
 
 void test_lwe_gate(GateType g)
@@ -470,7 +470,7 @@ void test_lwehe_gate_composition_helper(SchemeLWE& s, GateType g)
         int output = s.decrypt(ct_res);
         assert(output == exp_out);
     }
-    cout << "Avg. time" << avg_time/N_TESTS << endl;
+    cout << "Avg. time: " << avg_time/N_TESTS << endl;
 }
 
 void test_lwehe_composition_of_gates()
