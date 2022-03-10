@@ -348,6 +348,70 @@ void test_ntruhe_or()
     cout << "OR IS OK" << endl;
 }
 
+void test_ntruhe_gate_composition_helper(SchemeNTRU& s, GateType g)
+{
+    float avg_time = 0.0;
+    int N_TESTS = 100;
+
+    int in1, in2, exp_out;
+    in1 = binary_sampler(rand_engine);
+    exp_out = in1;
+
+    Ctxt_NTRU ct_res, ct;
+    s.encrypt(ct_res, in1);
+    for (int i = 0; i < N_TESTS; i++)
+    {
+        in2 = binary_sampler(rand_engine);
+        s.encrypt(ct, in2);
+        if (g == NAND)
+        {
+            auto start = clock();
+            s.nand_gate(ct_res, ct_res, ct);// ct_res should encrypt NAND(exp_out, in2)
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+            exp_out = !(exp_out & in2); // exp_out = NAND(exp_out, in2)
+
+            //cout << "NAND output: " << output << endl;
+        }
+        else if (g == AND) {
+            auto start = clock();
+            s.and_gate(ct_res, ct_res, ct);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+            exp_out = (exp_out & in2); // exp_out = AND(exp_out, in2)
+            //cout << "AND output: " << output << endl;
+        }
+        else if (g == OR) {
+            auto start = clock();
+            s.or_gate(ct_res, ct_res, ct);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+            exp_out = (exp_out | in2); // exp_out = OR(exp_out, in2)
+            //cout << "OR output: " << output << endl;
+        }
+        int output = s.decrypt(ct_res);
+        assert(output == exp_out);
+    }
+    cout << "Avg. time: " << avg_time/N_TESTS << endl;
+}
+
+void test_ntruhe_composition_of_gates()
+{
+    SchemeNTRU s;
+
+    test_ntruhe_gate_composition_helper(s, NAND);
+    cout << "COMPOSING NAND IS OK" << endl;
+
+    test_ntruhe_gate_composition_helper(s, AND);
+    cout << "COMPOSING AND IS OK" << endl;
+
+    test_ntruhe_gate_composition_helper(s, OR);
+    cout << "COMPOSING OR IS OK" << endl;
+}
+
+
+
+
+
+// ----- LWE tests
+
 void test_lwehe_gate_helper(int in1, int in2, SchemeLWE& s, GateType g)
 {
     float avg_time = 0.0;
@@ -500,6 +564,7 @@ int main()
     test_ntruhe_nand();
     test_ntruhe_and();
     test_ntruhe_or();
+    test_ntruhe_composition_of_gates();
     cout << "NTRU tests PASSED" << endl;
 
     cout << endl;
