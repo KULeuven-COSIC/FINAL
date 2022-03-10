@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <complex>
+#include <cassert>
 
 using namespace NTL;
 
