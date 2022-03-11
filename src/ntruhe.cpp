@@ -298,6 +298,7 @@ void SchemeNTRU::xor_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct1, const Ctxt_NT
 
 void SchemeNTRU::not_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct) const
 {
-    nand_gate(ct_res, ct, ct);
+    ct_res = ct_not_const;
+    ct_res -= ct;
 }
 

@@ -74,6 +74,7 @@ class SchemeNTRU
     Ctxt_NTRU ct_nand_const;
     Ctxt_NTRU ct_and_const;
     Ctxt_NTRU ct_or_const;
+    Ctxt_NTRU ct_not_const;
 
     void mask_constant(Ctxt_NTRU& ct, int constant);
 
@@ -98,6 +99,13 @@ class SchemeNTRU
         //cout << "Encryption of OR: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
     }
 
+    inline void set_not_const()
+    {
+        encrypt(ct_not_const, 1);
+    }
+
+
+
     public:
     
     SchemeNTRU()
@@ -112,6 +120,7 @@ class SchemeNTRU
         set_nand_const();
         set_and_const();
         set_or_const();
+        set_not_const();
     }
     /**
      * Encrypts a bit using matrix NTRU.
