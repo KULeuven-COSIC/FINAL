@@ -615,21 +615,12 @@ void test_lwehe_gate_composition_helper(SchemeLWE& s, GateType g)
             exp_out = (exp_out ^ in2); // exp_out = XOR(exp_out, in2)
             //cout << "XOR output: " << output << endl;
         }
-        else if (g == XOR) {
-            auto start = clock();
-            s.xor_gate(ct_res, ct_res, ct);
-            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
-            exp_out = (exp_out ^ in2); // exp_out = XOR(exp_out, in2)
-            //cout << "XOR output: " << output << endl;
-        }
         else if (g == NOT) {
             auto start = clock();
             s.not_gate(ct_res, ct_res);
             avg_time += float(clock()-start)/CLOCKS_PER_SEC;
             exp_out = (1 - exp_out); // exp_out = NOT(exp_out)
         }
-
-
 
         int output = s.decrypt(ct_res);
         assert(output == exp_out);
