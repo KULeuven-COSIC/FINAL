@@ -173,6 +173,13 @@ class SchemeNTRU
      */
     void xor_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct1, const Ctxt_NTRU& ct2) const;
 
+    /**
+    * Computes the NOT gate of a given ciphertext ct
+    * @param[out] ct_res encryption of the outuput of the NOT gate
+    * @param[in] ct encryption of the input bit
+    */
+    void not_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct) const;
+
 };
 
 #endif
