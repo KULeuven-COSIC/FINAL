@@ -307,6 +307,17 @@ void test_ntruhe_gate_helper(int in1, int in2, const SchemeNTRU& s, GateType g)
             //cout << "OR output: " << output << endl;
             assert(output == (in1 | in2));
         }
+        else if (g == XOR) {
+            auto start = clock();
+            s.xor_gate(ct_res, ct1, ct2);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+
+            int output = s.decrypt(ct_res);
+
+            //cout << "XOR output: " << output << endl;
+            assert(output == (in1 ^ in2));
+        }
+
     }
     cout << "Avg. time: " << avg_time/100.0 << endl;
 }
@@ -348,6 +359,15 @@ void test_ntruhe_or()
     cout << "OR IS OK" << endl;
 }
 
+void test_ntruhe_xor()
+{
+    GateType g = XOR;
+    test_ntru_gate(g);
+    cout << "XOR IS OK" << endl;
+}
+
+
+
 void test_ntruhe_gate_composition_helper(SchemeNTRU& s, GateType g)
 {
     float avg_time = 0.0;
@@ -386,6 +406,14 @@ void test_ntruhe_gate_composition_helper(SchemeNTRU& s, GateType g)
             exp_out = (exp_out | in2); // exp_out = OR(exp_out, in2)
             //cout << "OR output: " << output << endl;
         }
+        else if (g == XOR) {
+            auto start = clock();
+            s.xor_gate(ct_res, ct_res, ct);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+            exp_out = (exp_out ^ in2); // exp_out = XOR(exp_out, in2)
+            //cout << "XOR output: " << output << endl;
+        }
+
         int output = s.decrypt(ct_res);
         assert(output == exp_out);
     }
@@ -404,6 +432,9 @@ void test_ntruhe_composition_of_gates()
 
     test_ntruhe_gate_composition_helper(s, OR);
     cout << "COMPOSING OR IS OK" << endl;
+
+    test_ntruhe_gate_composition_helper(s, XOR);
+    cout << "COMPOSING XOR IS OK" << endl;
 }
 
 
@@ -593,6 +624,7 @@ int main()
     test_ntruhe_nand();
     test_ntruhe_and();
     test_ntruhe_or();
+    test_ntruhe_xor();
     test_ntruhe_composition_of_gates();
     cout << "NTRU tests PASSED" << endl;
 
