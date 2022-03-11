@@ -143,6 +143,14 @@ class SchemeLWE
          * @param[in] ct_2 encryption of the second input bit
          */
         void or_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct1, const Ctxt_LWE& ct2) const;
+
+        /**
+         * Computes the XOR gate of two given ciphertexts ct1 and ct2
+         * @param[out] ct_res encryptions of the outuput of the NAND gate
+         * @param[in] ct_1 encryption of the first input bit
+         * @param[in] ct_2 encryption of the second input bit
+         */
+        void xor_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct1, const Ctxt_LWE& ct2) const;
 };
 
     

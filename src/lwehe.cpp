@@ -471,3 +471,17 @@ void SchemeLWE::or_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct1, const Ctxt_LWE& c
     bootstrap(ct_res);
     //cout << "OR: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
+
+
+void SchemeLWE::xor_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct1, const Ctxt_LWE& ct2) const
+{
+    if (ct_res.a.size() != parLWE.n)
+        ct_res.a = vector<int>(parLWE.n);
+    for (size_t i = 0; i < parLWE.n; i++)
+        ct_res.a[i] = parLWE.mod_q_base(2*(ct1.a[i] + ct2.a[i])); // a = 2*(ct1.a + ct2.a)
+
+    ct_res.b = parLWE.mod_q_base(2*(ct1.b + ct2.b)); // b = 2*(ct1.b + ct2.b)
+    bootstrap(ct_res);
+}
+
+
