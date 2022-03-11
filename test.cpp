@@ -353,18 +353,14 @@ void test_ntruhe_nand(SchemeNTRU& s)
 void test_ntruhe_and(SchemeNTRU& s)
 {
     GateType g = AND;
-
     test_ntru_gate(s, g);
-
     cout << "AND IS OK" << endl;
 }
 
 void test_ntruhe_or(SchemeNTRU& s)
 {
     GateType g = OR;
-
     test_ntru_gate(s, g);
-
     cout << "OR IS OK" << endl;
 }
 
@@ -378,12 +374,10 @@ void test_ntruhe_xor(SchemeNTRU& s)
 void test_ntruhe_not(SchemeNTRU& s)
 {
     GateType g = NOT;
-
     for(int i = 0; i < 5; i++){
         int bit = binary_sampler(rand_engine);
         test_ntruhe_gate_helper(bit, 0, s, g);
     }
-
     cout << "NOT GATE IS OK" << endl;
 }
 
@@ -458,9 +452,6 @@ void test_ntruhe_composition_of_gates(SchemeNTRU& s)
     test_ntruhe_gate_composition_helper(s, NOT);
     cout << "COMPOSING NOT GATE IS OK" << endl;
 }
-
-
-
 
 
 // ----- LWE tests
@@ -543,27 +534,21 @@ void test_lwe_gate(SchemeLWE& s, GateType g)
 void test_lwehe_nand(SchemeLWE& s)
 {
     GateType g = NAND;
-
     test_lwe_gate(s, g);
-
     cout << "NAND IS OK" << endl;
 }
 
 void test_lwehe_and(SchemeLWE& s)
 {
     GateType g = AND;
-
     test_lwe_gate(s, g);
-
     cout << "AND IS OK" << endl;
 }
 
 void test_lwehe_or(SchemeLWE& s)
 {
     GateType g = OR;
-
     test_lwe_gate(s, g);
-
     cout << "OR IS OK" << endl;
 }
 
@@ -577,7 +562,6 @@ void test_lwehe_xor(SchemeLWE& s)
 void test_lwehe_not(SchemeLWE& s)
 {
     GateType g = NOT;
-
     for(int i = 0; i < 4; i++){
         int bit = binary_sampler(rand_engine);
         test_lwehe_gate_helper(bit, 0, s, g);

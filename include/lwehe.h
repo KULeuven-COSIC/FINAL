@@ -152,7 +152,6 @@ class SchemeLWE
          */
         void xor_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct1, const Ctxt_LWE& ct2) const;
 
-
         /**
          * Computes the NOT gate of a given ciphertext ct
          * @param[out] ct_res encryption of the outuput of the NOT gate
@@ -160,9 +159,5 @@ class SchemeLWE
          */
         void not_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct) const;
 };
-
-    
-
-    
 
 #endif
