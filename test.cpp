@@ -265,7 +265,7 @@ void test_sampler()
     cout << "SAMPLER IS OK" << endl;
 }
 
-enum GateType {NAND, AND, OR};
+enum GateType {NAND, AND, OR, XOR};
 
 void test_ntruhe_gate_helper(int in1, int in2, const SchemeNTRU& s, GateType g)
 {
@@ -452,6 +452,18 @@ void test_lwehe_gate_helper(int in1, int in2, SchemeLWE& s, GateType g)
             //cout << "OR output: " << output << endl;
             assert(output == (in1 | in2));
         }
+        else if (g == XOR) {
+            auto start = clock();
+            s.xor_gate(ct_res, ct1, ct2);
+//            s.or_gate(ct_res, ct1, ct2);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+
+            int output = s.decrypt(ct_res);
+
+            //cout << "OR output: " << output << endl;
+            assert(output == (in1 ^ in2));
+        }
+
     }
     cout << "Avg. time: " << avg_time/100.0 << endl;
 }
@@ -493,10 +505,17 @@ void test_lwehe_or()
     cout << "OR IS OK" << endl;
 }
 
+void test_lwehe_xor()
+{
+    GateType g = XOR;
+    test_lwe_gate(g);
+    cout << "XOR IS OK" << endl;
+}
+
 void test_lwehe_gate_composition_helper(SchemeLWE& s, GateType g)
 {
     float avg_time = 0.0;
-    int N_TESTS = 100;
+    int N_TESTS = 120;
 
     int in1, in2, exp_out;
     in1 = binary_sampler(rand_engine);
@@ -514,7 +533,6 @@ void test_lwehe_gate_composition_helper(SchemeLWE& s, GateType g)
             s.nand_gate(ct_res, ct_res, ct);// ct_res should encrypt NAND(exp_out, in2)
             avg_time += float(clock()-start)/CLOCKS_PER_SEC;
             exp_out = !(exp_out & in2); // exp_out = NAND(exp_out, in2)
-
             //cout << "NAND output: " << output << endl;
         }
         else if (g == AND) {
@@ -531,6 +549,14 @@ void test_lwehe_gate_composition_helper(SchemeLWE& s, GateType g)
             exp_out = (exp_out | in2); // exp_out = OR(exp_out, in2)
             //cout << "OR output: " << output << endl;
         }
+        else if (g == XOR) {
+            auto start = clock();
+            s.xor_gate(ct_res, ct_res, ct);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+            exp_out = (exp_out ^ in2); // exp_out = XOR(exp_out, in2)
+            //cout << "XOR output: " << output << endl;
+        }
+
         int output = s.decrypt(ct_res);
         assert(output == exp_out);
     }
@@ -549,6 +575,9 @@ void test_lwehe_composition_of_gates()
 
     test_lwehe_gate_composition_helper(s, OR);
     cout << "COMPOSING OR IS OK" << endl;
+
+    test_lwehe_gate_composition_helper(s, XOR);
+    cout << "COMPOSING XOR IS OK" << endl;
 }
 
 
@@ -573,6 +602,7 @@ int main()
     test_lwehe_nand();
     test_lwehe_and();
     test_lwehe_or();
+    test_lwehe_xor();
     test_lwehe_composition_of_gates();
     cout << "LWE tests PASSED" << endl;
 
