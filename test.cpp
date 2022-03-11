@@ -265,12 +265,13 @@ void test_sampler()
     cout << "SAMPLER IS OK" << endl;
 }
 
-enum GateType {NAND, AND, OR, XOR};
+enum GateType {NAND, AND, OR, XOR, NOT};
 
 void test_ntruhe_gate_helper(int in1, int in2, const SchemeNTRU& s, GateType g)
 {
     float avg_time = 0.0;
-    for (int i = 0; i < 100; i++)
+    int N_TESTS = (g == NOT ? 30 : 100);
+    for (int i = 0; i < N_TESTS; i++)
     {
         Ctxt_NTRU ct_res, ct1, ct2;
         s.encrypt(ct1, in1);
@@ -317,9 +318,19 @@ void test_ntruhe_gate_helper(int in1, int in2, const SchemeNTRU& s, GateType g)
             //cout << "XOR output: " << output << endl;
             assert(output == (in1 ^ in2));
         }
+        else if (g == NOT) {
+            auto start = clock();
+            s.not_gate(ct_res, ct1);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+
+            int output = s.decrypt(ct_res);
+
+//            cout << ".... NOT output: " << output << endl;
+            assert(output == (1 - in1));
+        }
 
     }
-    cout << "Avg. time: " << avg_time/100.0 << endl;
+    cout << "Avg. time: " << avg_time/N_TESTS << endl;
 }
 
 void test_ntru_gate(GateType g)
@@ -365,6 +376,20 @@ void test_ntruhe_xor()
     test_ntru_gate(g);
     cout << "XOR IS OK" << endl;
 }
+
+void test_ntruhe_not()
+{
+    SchemeNTRU s;
+    GateType g = NOT;
+
+    for(int i = 0; i < 5; i++){
+        int bit = binary_sampler(rand_engine);
+        test_ntruhe_gate_helper(bit, 0, s, g);
+    }
+
+    cout << "NOT GATE IS OK" << endl;
+}
+
 
 
 
@@ -413,6 +438,13 @@ void test_ntruhe_gate_composition_helper(SchemeNTRU& s, GateType g)
             exp_out = (exp_out ^ in2); // exp_out = XOR(exp_out, in2)
             //cout << "XOR output: " << output << endl;
         }
+        else if (g == NOT) {
+            auto start = clock();
+            s.not_gate(ct_res, ct_res);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+            exp_out = (1 - exp_out); // exp_out = NOT(exp_out)
+            //cout << "NOT output: " << output << endl;
+        }
 
         int output = s.decrypt(ct_res);
         assert(output == exp_out);
@@ -435,6 +467,9 @@ void test_ntruhe_composition_of_gates()
 
     test_ntruhe_gate_composition_helper(s, XOR);
     cout << "COMPOSING XOR IS OK" << endl;
+
+    test_ntruhe_gate_composition_helper(s, NOT);
+    cout << "COMPOSING NOT GATE IS OK" << endl;
 }
 
 
@@ -486,7 +521,6 @@ void test_lwehe_gate_helper(int in1, int in2, SchemeLWE& s, GateType g)
         else if (g == XOR) {
             auto start = clock();
             s.xor_gate(ct_res, ct1, ct2);
-//            s.or_gate(ct_res, ct1, ct2);
             avg_time += float(clock()-start)/CLOCKS_PER_SEC;
 
             int output = s.decrypt(ct_res);
@@ -494,6 +528,18 @@ void test_lwehe_gate_helper(int in1, int in2, SchemeLWE& s, GateType g)
             //cout << "OR output: " << output << endl;
             assert(output == (in1 ^ in2));
         }
+        else if (g == NOT) {
+            auto start = clock();
+            s.not_gate(ct_res, ct1);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+
+            int output = s.decrypt(ct_res);
+
+//            cout << "NOT output: " << output << endl;
+            assert(output == (1 - in1));
+        }
+
+
 
     }
     cout << "Avg. time: " << avg_time/100.0 << endl;
@@ -543,6 +589,21 @@ void test_lwehe_xor()
     cout << "XOR IS OK" << endl;
 }
 
+void test_lwehe_not()
+{
+    SchemeLWE s;
+    GateType g = NOT;
+
+    for(int i = 0; i < 4; i++){
+        int bit = binary_sampler(rand_engine);
+        cout << "bit = " << bit << endl;
+        test_lwehe_gate_helper(bit, 0, s, g);
+    }
+
+    cout << "NOT GATE IS OK" << endl;
+}
+
+
 void test_lwehe_gate_composition_helper(SchemeLWE& s, GateType g)
 {
     float avg_time = 0.0;
@@ -587,6 +648,14 @@ void test_lwehe_gate_composition_helper(SchemeLWE& s, GateType g)
             exp_out = (exp_out ^ in2); // exp_out = XOR(exp_out, in2)
             //cout << "XOR output: " << output << endl;
         }
+        else if (g == XOR) {
+            auto start = clock();
+            s.xor_gate(ct_res, ct_res, ct);
+            avg_time += float(clock()-start)/CLOCKS_PER_SEC;
+            exp_out = (exp_out ^ in2); // exp_out = XOR(exp_out, in2)
+            //cout << "XOR output: " << output << endl;
+        }
+
 
         int output = s.decrypt(ct_res);
         assert(output == exp_out);
@@ -625,16 +694,19 @@ int main()
     test_ntruhe_and();
     test_ntruhe_or();
     test_ntruhe_xor();
+    test_ntruhe_not();
     test_ntruhe_composition_of_gates();
     cout << "NTRU tests PASSED" << endl;
 
     cout << endl;
     cout << "-------------------------" << endl;
     cout << "LWE tests" << endl;
+    test_lwehe_not();
     test_lwehe_nand();
     test_lwehe_and();
     test_lwehe_or();
     test_lwehe_xor();
+    test_lwehe_not();
     test_lwehe_composition_of_gates();
     cout << "LWE tests PASSED" << endl;
 
