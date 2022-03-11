@@ -484,4 +484,13 @@ void SchemeLWE::xor_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct1, const Ctxt_LWE& 
     bootstrap(ct_res);
 }
 
+void SchemeLWE::not_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct) const
+{
+    if (ct_res.a.size() != parLWE.n)
+        ct_res.a = vector<int>(parLWE.n);
+    for (size_t i = 0; i < parLWE.n; i++)
+        ct_res.a[i] = -ct.a[i];
+    ct_res.b = parLWE.delta_base - ct.b;
+    ct_res.b = parLWE.mod_q_base(ct_res.b);
+}
 
