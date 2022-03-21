@@ -171,42 +171,10 @@ void KeyGen::get_bsk(BSKey_NTRU& bsk, const SKey_base_NTRU& sk_base, const SKey_
     // reset the input
     bsk.clear();
 
-    // transform the secret key of the bootstrapping scheme to the DFT domain
-    FFTPoly sk_boot_inv_fft(Param::N2p1);
-    fftN.to_fft(sk_boot_inv_fft, sk_boot.sk_inv);
-
-    // index of a secret key coefficient of the base scheme
-    coef_counter = 0;
-    // vector to keep the DFT transform of a random ternary vector
-    FFTPoly g_fft(Param::N2p1);
-    // vector to keep the DFT transform of a bootstrapping key part
-    FFTPoly tmp_bsk_fft(Param::N2p1);
-    // vector to keep a bootstrapping key part
-    vector<long> tmp_bsk(Param::N);
-    vector<int> tmp_bsk_int(Param::N);
-    // precompute FFT transformed powers of decomposition bases
-    vector<vector<FFTPoly>> B_bsk_pwr_poly;
-    for (int iBase = 0; iBase < Param::B_bsk_size; iBase++)
-    {
-        double B_bsk_double = param.B_bsk[iBase];
-        vector<FFTPoly> base_row;
-        // FFT transform of (1,0,...,0)
-        FFTPoly tmp_fft(Param::N2p1,complex<double>(1.0, 0.0));
-        base_row.push_back(tmp_fft);
-        for (int iPart = 1; iPart < param.l_bsk[iBase]; iPart++)
-        {
-            transform(tmp_fft.begin(), tmp_fft.end(), tmp_fft.begin(), 
-                        [B_bsk_double](complex<double> &z){ return z*B_bsk_double; });
-            base_row.push_back(tmp_fft);
-        }
-        B_bsk_pwr_poly.push_back(base_row);
-    }
-    
     // loop over different decomposition bases
     for (int iBase = 0; iBase < Param::B_bsk_size; iBase++)
     {
         vector<vector<NGSFFTctxt>> base_row;
-        vector<FFTPoly>& B_bsk_pwr_poly_row = B_bsk_pwr_poly[iBase];
         for (int iCoef = coef_counter; iCoef < coef_counter+param.bsk_partition[iBase]; iCoef++)
         {
             vector<NGSFFTctxt> coef_row;
@@ -228,27 +196,7 @@ void KeyGen::get_bsk(BSKey_NTRU& bsk, const SKey_base_NTRU& sk_base, const SKey_
             for (int iBit = 0; iBit < 2; iBit++)
             {
                 NGSFFTctxt bit_row;
-                for (int iPart = 0; iPart < param.l_bsk[iBase]; iPart++)
-                {
-                    // sample random ternary vector
-                    ModQPoly g(Param::N,0L);
-                    sampler.get_ternary_vector(g);
-                    // FFT transform it
-                    fftN.to_fft(g_fft, g);
-                    // compute g * sk_boot^(-1)
-                    tmp_bsk_fft = g_fft * sk_boot_inv_fft;
-                    // compute g * sk_boot^(-1) + B^i * bit
-                    if (coef_bits[iBit] == 1)
-                        tmp_bsk_fft = B_bsk_pwr_poly_row[iPart] + tmp_bsk_fft;
-                    // inverse FFT of the above result
-                    fftN.from_fft(tmp_bsk, tmp_bsk_fft);
-                    // reduction modulo q_boot
-                    mod_q_boot(tmp_bsk_int, tmp_bsk);
-                    // FFT transform for further use
-                    fftN.to_fft(tmp_bsk_fft, tmp_bsk_int);
-
-                    bit_row.push_back(tmp_bsk_fft);
-                }
+                enc_ngs(bit_row, coef_bits[iBit], param.l_bsk[iBase], param.B_bsk[iBase], sk_boot);
                 coef_row.push_back(bit_row);
             }
             base_row.push_back(coef_row);
@@ -269,75 +217,21 @@ void KeyGen::get_bsk(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_bo
 
     // reset the input
     bsk.clear();
-
-    // transform the secret key of the bootstrapping scheme to the DFT domain
-    FFTPoly sk_boot_inv_fft(Param::N2p1);
-    fftN.to_fft(sk_boot_inv_fft, sk_boot.sk_inv);
-
-    // index of a secret key coefficient of the base scheme
-    coef_counter = 0;
-    // vector to keep the DFT transform of a random ternary vector
-    FFTPoly g_fft(Param::N2p1);
-    // vector to keep the DFT transform of a bootstrapping key part
-    FFTPoly tmp_bsk_fft(Param::N2p1);
-    // vector to keep a bootstrapping key part
-    ModQPoly tmp_bsk(Param::N);
-    vector<long> tmp_bsk_long;
-    // precompute FFT transformed powers of decomposition bases
-    vector<vector<FFTPoly>> B_bsk_pwr_poly;
-    for (int iBase = 0; iBase < Param::B_bsk_size; iBase++)
-    {
-        double B_bsk_double = param.B_bsk[iBase];
-        vector<FFTPoly> base_row;
-        // FFT transform of (1,0,...,0)
-        FFTPoly tmp_fft(Param::N2p1,complex<double>(1.0, 0.0));
-        base_row.push_back(tmp_fft);
-        for (int iPart = 1; iPart < param.l_bsk[iBase]; iPart++)
-        {
-            transform(tmp_fft.begin(), tmp_fft.end(), tmp_fft.begin(), 
-                        [B_bsk_double](complex<double> &z){ return z*B_bsk_double; });
-            base_row.push_back(tmp_fft);
-        }
-        B_bsk_pwr_poly.push_back(base_row);
-    }
-
-    bsk.clear();
     bsk = vector<vector<NGSFFTctxt>>(Param::B_bsk_size);
     for (int i = 0; i < Param::B_bsk_size; i++)
         bsk[i] = vector<NGSFFTctxt>(param.bsk_partition[i], NGSFFTctxt(param.l_bsk[i], FFTPoly(Param::N2p1)));
     
-    ModQPoly g(Param::N,0L);
     // loop over different decomposition bases
     for (int iBase = 0; iBase < Param::B_bsk_size; iBase++)
     {
         vector<NGSFFTctxt> base_row(param.bsk_partition[iBase], NGSFFTctxt(param.l_bsk[iBase], FFTPoly(Param::N2p1)));
-        vector<FFTPoly>& B_bsk_pwr_poly_row = B_bsk_pwr_poly[iBase];
         for (int iCoef = coef_counter; iCoef < coef_counter+param.bsk_partition[iBase]; iCoef++)
         {
             NGSFFTctxt coef_row(param.l_bsk[iBase], FFTPoly(Param::N2p1));
             int sk_base_coef = sk_base[iCoef];
+            
             // encrypt each bit using the NGS scheme
-            for (int iPart = 0; iPart < param.l_bsk[iBase]; iPart++)
-            {
-                // sample random ternary vector
-                sampler.get_ternary_vector(g);
-                // FFT transform it
-                fftN.to_fft(g_fft, g);
-                // compute g * sk_boot^(-1)
-                tmp_bsk_fft = g_fft;
-                tmp_bsk_fft *= sk_boot_inv_fft;
-                // compute g * sk_boot^(-1) + B^i * bit
-                if (sk_base_coef == 1)
-                    tmp_bsk_fft += B_bsk_pwr_poly_row[iPart];
-                // inverse FFT of the above result
-                fftN.from_fft(tmp_bsk_long, tmp_bsk_fft);
-                // reduction modulo q_boot
-                mod_q_boot(tmp_bsk, tmp_bsk_long);
-                // FFT transform for further use
-                fftN.to_fft(tmp_bsk_fft, tmp_bsk);
-
-                coef_row[iPart] = tmp_bsk_fft;
-            }
+            enc_ngs(coef_row, sk_base_coef, param.l_bsk[iBase], param.B_bsk[iBase], sk_boot);
             base_row[iCoef-coef_counter] = coef_row;
         }
         bsk[iBase] = base_row;
@@ -356,50 +250,15 @@ void KeyGen::get_bsk2(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_b
 
     // reset the input
     bsk.clear();
-
-    // transform the secret key of the bootstrapping scheme to the DFT domain
-    FFTPoly sk_boot_inv_fft(Param::N2p1);
-    fftN.to_fft(sk_boot_inv_fft, sk_boot.sk_inv);
-
-    // index of a secret key coefficient of the base scheme
-    coef_counter = 0;
-    // vector to keep the DFT transform of a random ternary vector
-    FFTPoly g_fft(Param::N2p1);
-    // vector to keep the DFT transform of a bootstrapping key part
-    FFTPoly tmp_bsk_fft(Param::N2p1);
-    // vector to keep a bootstrapping key part
-    ModQPoly tmp_bsk(Param::N);
-    vector<long> tmp_bsk_long;
-    // precompute FFT transformed powers of decomposition bases
-    vector<vector<FFTPoly>> B_bsk_pwr_poly;
-    for (int iBase = 0; iBase < Param::B_bsk_size; iBase++)
-    {
-        double B_bsk_double = param.B_bsk[iBase];
-        vector<FFTPoly> base_row;
-        // FFT transform of (1,0,...,0)
-        FFTPoly tmp_fft(Param::N2p1,complex<double>(1.0, 0.0));
-        base_row.push_back(tmp_fft);
-        for (int iPart = 1; iPart < param.l_bsk[iBase]; iPart++)
-        {
-            transform(tmp_fft.begin(), tmp_fft.end(), tmp_fft.begin(), 
-                        [B_bsk_double](complex<double> &z){ return z*B_bsk_double; });
-            base_row.push_back(tmp_fft);
-        }
-        B_bsk_pwr_poly.push_back(base_row);
-    }
-
-    bsk.clear();
     bsk = vector<vector<NGSFFTctxt>>(Param::B_bsk_size);
     for (int i = 0; i < Param::B_bsk_size; i++)
         bsk[i] = vector<NGSFFTctxt>(4 * (param.bsk_partition[i] >> 1), NGSFFTctxt(param.l_bsk[i], FFTPoly(Param::N2p1)));
     
-    ModQPoly g(Param::N,0L);
     // loop over different decomposition bases
     int bits[4];
     for (int iBase = 0; iBase < Param::B_bsk_size; iBase++)
     {
         vector<NGSFFTctxt> base_row(4 * (param.bsk_partition[iBase] >> 1), NGSFFTctxt(param.l_bsk[iBase], FFTPoly(Param::N2p1)));
-        vector<FFTPoly>& B_bsk_pwr_poly_row = B_bsk_pwr_poly[iBase];
         for (int iCoef = coef_counter; iCoef < coef_counter+param.bsk_partition[iBase]; iCoef+=2)
         {
             NGSFFTctxt coef_row(param.l_bsk[iBase], FFTPoly(Param::N2p1));
@@ -411,27 +270,7 @@ void KeyGen::get_bsk2(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_b
             // encrypt each bit using the NGS scheme
             for (int iBit = 0; iBit < 4; iBit++)
             {
-                for (int iPart = 0; iPart < param.l_bsk[iBase]; iPart++)
-                {
-                    // sample random ternary vector
-                    sampler.get_ternary_vector(g);
-                    // FFT transform it
-                    fftN.to_fft(g_fft, g);
-                    // compute g * sk_boot^(-1)
-                    tmp_bsk_fft = g_fft;
-                    tmp_bsk_fft *= sk_boot_inv_fft;
-                    // compute g * sk_boot^(-1) + B^i * bit
-                    if (bits[iBit] == 1)
-                        tmp_bsk_fft += B_bsk_pwr_poly_row[iPart];
-                    // inverse FFT of the above result
-                    fftN.from_fft(tmp_bsk_long, tmp_bsk_fft);
-                    // reduction modulo q_boot
-                    mod_q_boot(tmp_bsk, tmp_bsk_long);
-                    // FFT transform for further use
-                    fftN.to_fft(tmp_bsk_fft, tmp_bsk);
-
-                    coef_row[iPart] = tmp_bsk_fft;
-                }
+                enc_ngs(coef_row, bits[iBit], param.l_bsk[iBase], param.B_bsk[iBase], sk_boot);
                 base_row[4*((iCoef-coef_counter) >> 1)+iBit] = coef_row;
             } 
         }
@@ -441,3 +280,57 @@ void KeyGen::get_bsk2(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_b
 
     cout << "Bootstrapping2 generation: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
+
+void enc_ngs(NGSFFTctxt& ct, int m, int l, int B, const SKey_boot& sk_boot)
+{
+    ModQPoly msg(Param::N,0L);
+    msg[0] = m; // msg = m (degree-0 polynomial)
+    enc_ngs(ct, msg, l, B, sk_boot);
+}
+
+void mult_poly_by_int(ModQPoly& a, const int b){
+    for(int i = 0; i < a.size(); i++)
+        a[i] *= b;
+}
+
+void enc_ngs(NGSFFTctxt& ct, const ModQPoly& m, int l, int B, const SKey_boot& sk_boot)
+{
+    if(ct.size() != l)
+        ct = NGSFFTctxt(l);
+
+    FFTPoly sk_boot_inv_fft(Param::N2p1); // f^-1 in FFT form
+    fftN.to_fft(sk_boot_inv_fft, sk_boot.sk_inv);
+    FFTPoly g_fft(Param::N2p1);
+    ModQPoly msg(m); // at each iteration i, msg will be equal to m * B^i
+    FFTPoly msg_fft(Param::N2p1);
+    FFTPoly tmp_ct(Param::N2p1);
+    vector<long> tmp_ct_long(Param::N);
+    vector<int> tmp_ct_int(Param::N);
+
+    int powerB = 1;
+
+    for (int i = 0; i < l; i++)
+    {
+        // sample random ternary vector
+        ModQPoly g(Param::N,0L);
+        Sampler::get_ternary_vector(g);
+        // FFT transform it
+        fftN.to_fft(g_fft, g);
+        // compute g * sk_boot^(-1)
+        tmp_ct = g_fft * sk_boot_inv_fft;
+        // compute g * sk_boot^(-1) + B^i * m
+        fftN.to_fft(msg_fft, msg); // msg = m * B^i
+        tmp_ct += msg_fft;
+        // inverse FFT of the above result
+        fftN.from_fft(tmp_ct_long, tmp_ct);
+        // reduction modulo q_boot
+        mod_q_boot(tmp_ct_int, tmp_ct_long);
+        // FFT transform for further use
+        fftN.to_fft(tmp_ct, tmp_ct_int);
+
+        ct[i] = tmp_ct;
+
+        mult_poly_by_int(msg, B);
+    }
+}
+

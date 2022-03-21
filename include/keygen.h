@@ -122,4 +122,24 @@ class KeyGen
         void get_bsk2(BSKey_LWE& bsk, const SKey_base_LWE& sk_base, const SKey_boot& sk_boot);
 };
 
+/**
+* Encrypts a polynomial into a vector ciphertext under the NTRU problem.
+* @param[out] ct ciphertext encrypting the input
+* @param[in] m polynomial to encrypt
+* @param[in] l dimension of the vector ciphertext
+* @param[in] B base used in the gadget vector
+* @param[in] sk_boot contains f and f^-1
+**/ 
+void enc_ngs(NGSFFTctxt& ct, const ModQPoly& m, int l, int B, const SKey_boot& sk_boot);
+
+/**
+* Encrypts an integer into a vector ciphertext under the NTRU problem.
+* @param[out] ct ciphertext encrypting the input
+* @param[in] m integer to encrypt (it is treated as a degree-0 polynomial)
+* @param[in] l dimension of the vector ciphertext
+* @param[in] B base used in the gadget vector
+* @param[in] sk_boot contains f and f^-1
+**/ 
+void enc_ngs(NGSFFTctxt& ct, int m, int l, int B, const SKey_boot& sk_boot);
+
 #endif
