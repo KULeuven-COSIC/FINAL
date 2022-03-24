@@ -288,10 +288,9 @@ void SchemeNTRU::xor_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct1, const Ctxt_NT
 {
     if (ct_res.data.size() != parNTRU.n)
         ct_res.data = vector<int>(parNTRU.n);
-    for (size_t i = 0; i < parNTRU.n; i++){
-        ct_res.data[i] = 2*(ct1.data[i] + ct2.data[i]);
-        ct_res.data[i] = parNTRU.mod_q_base(ct_res.data[i]); // res = 2*(ct1 + ct2) % q
-    }
+
+    ct_res = ct1 + ct2;
+    ct_res = ct_res + ct_res; // ct_res = 2*(ct1 + ct2) % q
 
     bootstrap(ct_res);
 }

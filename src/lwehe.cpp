@@ -477,10 +477,10 @@ void SchemeLWE::xor_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct1, const Ctxt_LWE& 
 {
     if (ct_res.a.size() != parLWE.n)
         ct_res.a = vector<int>(parLWE.n);
-    for (size_t i = 0; i < parLWE.n; i++)
-        ct_res.a[i] = parLWE.mod_q_base(2*(ct1.a[i] + ct2.a[i])); // a = 2*(ct1.a + ct2.a)
 
-    ct_res.b = parLWE.mod_q_base(2*(ct1.b + ct2.b)); // b = 2*(ct1.b + ct2.b)
+    ct_res = ct1 + ct2;
+    ct_res = ct_res + ct_res; // ct = 2*(ct1 + ct2)
+
     bootstrap(ct_res);
 }
 
@@ -488,9 +488,7 @@ void SchemeLWE::not_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct) const
 {
     if (ct_res.a.size() != parLWE.n)
         ct_res.a = vector<int>(parLWE.n);
-    for (size_t i = 0; i < parLWE.n; i++)
-        ct_res.a[i] = -ct.a[i];
-    ct_res.b = parLWE.delta_base - ct.b;
-    ct_res.b = parLWE.mod_q_base(ct_res.b);
+
+    ct_res = parLWE.delta_base - ct;
 }
 
