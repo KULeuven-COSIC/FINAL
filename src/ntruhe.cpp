@@ -283,3 +283,20 @@ void SchemeNTRU::or_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct1, const Ctxt_NTR
     bootstrap(ct_res);
     //cout << "OR: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
 }
+
+void SchemeNTRU::xor_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct1, const Ctxt_NTRU& ct2) const
+{
+    if (ct_res.data.size() != parNTRU.n)
+        ct_res.data = vector<int>(parNTRU.n);
+
+    ct_res = ct1 + ct2;
+    ct_res = ct_res + ct_res; // ct_res = 2*(ct1 + ct2) % q
+
+    bootstrap(ct_res);
+}
+
+void SchemeNTRU::not_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct) const
+{
+    ct_res = ct_not_const - ct;
+}
+

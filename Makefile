@@ -5,7 +5,7 @@ DEPS = -lntl -lgmp -lfftw3 -lm
 all: clean test
 	 
 clean:
-	$(RM) test test.o lwehe.o ntruhe.o fft.o sampler.o keygen.o
+	$(RM) test test.o lwehe.o ntruhe.o fft.o sampler.o keygen.o libfinal.a
 
 test: FINAL.h libfinal.a
 	$(CCX) $(CCXFLAGS) -o test test.cpp libfinal.a $(DEPS)

@@ -74,6 +74,7 @@ class SchemeNTRU
     Ctxt_NTRU ct_nand_const;
     Ctxt_NTRU ct_and_const;
     Ctxt_NTRU ct_or_const;
+    Ctxt_NTRU ct_not_const;
 
     void mask_constant(Ctxt_NTRU& ct, int constant);
 
@@ -98,6 +99,13 @@ class SchemeNTRU
         //cout << "Encryption of OR: " << float(clock()-start)/CLOCKS_PER_SEC << endl;
     }
 
+    inline void set_not_const()
+    {
+        encrypt(ct_not_const, 1);
+    }
+
+
+
     public:
     
     SchemeNTRU()
@@ -112,6 +120,7 @@ class SchemeNTRU
         set_nand_const();
         set_and_const();
         set_or_const();
+        set_not_const();
     }
     /**
      * Encrypts a bit using matrix NTRU.
@@ -151,7 +160,7 @@ class SchemeNTRU
 
     /**
      * Computes the AND gate of two given ciphertexts ct1 and ct2
-     * @param[out] ct_res encryptions of the outuput of the NAND gate
+     * @param[out] ct_res encryptions of the outuput of the AND gate
      * @param[in] ct_1 encryption of the first input bit
      * @param[in] ct_2 encryption of the second input bit
      */
@@ -159,11 +168,27 @@ class SchemeNTRU
 
     /**
      * Computes the OR gate of two given ciphertexts ct1 and ct2
-     * @param[out] ct_res encryptions of the outuput of the NAND gate
+     * @param[out] ct_res encryptions of the outuput of the OR gate
      * @param[in] ct_1 encryption of the first input bit
      * @param[in] ct_2 encryption of the second input bit
      */
     void or_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct1, const Ctxt_NTRU& ct2) const;
+
+    /**
+     * Computes the XOR gate of two given ciphertexts ct1 and ct2
+     * @param[out] ct_res encryptions of the outuput of the XOR gate
+     * @param[in] ct_1 encryption of the first input bit
+     * @param[in] ct_2 encryption of the second input bit
+     */
+    void xor_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct1, const Ctxt_NTRU& ct2) const;
+
+    /**
+    * Computes the NOT gate of a given ciphertext ct
+    * @param[out] ct_res encryption of the outuput of the NOT gate
+    * @param[in] ct encryption of the input bit
+    */
+    void not_gate(Ctxt_NTRU& ct_res, const Ctxt_NTRU& ct) const;
+
 };
 
 #endif

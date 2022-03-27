@@ -130,7 +130,7 @@ class SchemeLWE
 
         /**
          * Computes the AND gate of two given ciphertexts ct1 and ct2
-         * @param[out] ct_res encryptions of the outuput of the NAND gate
+         * @param[out] ct_res encryptions of the outuput of the AND gate
          * @param[in] ct_1 encryption of the first input bit
          * @param[in] ct_2 encryption of the second input bit
          */
@@ -138,15 +138,26 @@ class SchemeLWE
 
         /**
          * Computes the OR gate of two given ciphertexts ct1 and ct2
-         * @param[out] ct_res encryptions of the outuput of the NAND gate
+         * @param[out] ct_res encryptions of the outuput of the OR gate
          * @param[in] ct_1 encryption of the first input bit
          * @param[in] ct_2 encryption of the second input bit
          */
         void or_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct1, const Ctxt_LWE& ct2) const;
+
+        /**
+         * Computes the XOR gate of two given ciphertexts ct1 and ct2
+         * @param[out] ct_res encryptions of the outuput of the XOR gate
+         * @param[in] ct_1 encryption of the first input bit
+         * @param[in] ct_2 encryption of the second input bit
+         */
+        void xor_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct1, const Ctxt_LWE& ct2) const;
+
+        /**
+         * Computes the NOT gate of a given ciphertext ct
+         * @param[out] ct_res encryption of the outuput of the NOT gate
+         * @param[in] ct encryption of the input bit
+         */
+        void not_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct) const;
 };
-
-    
-
-    
 
 #endif
