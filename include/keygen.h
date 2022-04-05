@@ -128,7 +128,7 @@ class KeyGen
 * @param[in] m polynomial to encrypt
 * @param[in] l dimension of the vector ciphertext
 * @param[in] B base used in the gadget vector
-* @param[in] sk_boot contains f and f^-1
+* @param[in] sk_boot contains bootstrapping secret key and its inverse
 **/ 
 void enc_ngs(NGSFFTctxt& ct, const ModQPoly& m, int l, int B, const SKey_boot& sk_boot);
 
@@ -138,7 +138,7 @@ void enc_ngs(NGSFFTctxt& ct, const ModQPoly& m, int l, int B, const SKey_boot& s
 * @param[in] m integer to encrypt (it is treated as a degree-0 polynomial)
 * @param[in] l dimension of the vector ciphertext
 * @param[in] B base used in the gadget vector
-* @param[in] sk_boot contains f and f^-1
+* @param[in] sk_boot contains bootstrapping secret key and its inverse
 **/ 
 void enc_ngs(NGSFFTctxt& ct, int m, int l, int B, const SKey_boot& sk_boot);
 

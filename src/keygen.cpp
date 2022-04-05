@@ -288,7 +288,7 @@ void enc_ngs(NGSFFTctxt& ct, int m, int l, int B, const SKey_boot& sk_boot)
     enc_ngs(ct, msg, l, B, sk_boot);
 }
 
-void mult_poly_by_int(ModQPoly& a, const int b){
+void mult_fft_poly_by_int(FFTPoly& a, const int b){
     for(int i = 0; i < a.size(); i++)
         a[i] *= b;
 }
@@ -302,12 +302,11 @@ void enc_ngs(NGSFFTctxt& ct, const ModQPoly& m, int l, int B, const SKey_boot& s
     fftN.to_fft(sk_boot_inv_fft, sk_boot.sk_inv);
     FFTPoly g_fft(Param::N2p1);
     ModQPoly msg(m); // at each iteration i, msg will be equal to m * B^i
-    FFTPoly msg_fft(Param::N2p1);
+    FFTPoly msg_powB(Param::N2p1);
+    fftN.to_fft(msg_powB, msg); // FFT of m * B^i
     FFTPoly tmp_ct(Param::N2p1);
     vector<long> tmp_ct_long(Param::N);
     vector<int> tmp_ct_int(Param::N);
-
-    int powerB = 1;
 
     for (int i = 0; i < l; i++)
     {
@@ -319,8 +318,7 @@ void enc_ngs(NGSFFTctxt& ct, const ModQPoly& m, int l, int B, const SKey_boot& s
         // compute g * sk_boot^(-1)
         tmp_ct = g_fft * sk_boot_inv_fft;
         // compute g * sk_boot^(-1) + B^i * m
-        fftN.to_fft(msg_fft, msg); // msg = m * B^i
-        tmp_ct += msg_fft;
+        tmp_ct += msg_powB;
         // inverse FFT of the above result
         fftN.from_fft(tmp_ct_long, tmp_ct);
         // reduction modulo q_boot
@@ -330,7 +328,7 @@ void enc_ngs(NGSFFTctxt& ct, const ModQPoly& m, int l, int B, const SKey_boot& s
 
         ct[i] = tmp_ct;
 
-        mult_poly_by_int(msg, B);
+        mult_fft_poly_by_int(msg_powB, B); // msg_powB = msg * B^i
     }
 }
 
