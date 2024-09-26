@@ -158,6 +158,16 @@ class SchemeLWE
          * @param[in] ct encryption of the input bit
          */
         void not_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct) const;
+
+
+        /**
+         * Returns the logarithm (in base 2) of the ciphertext.
+         * @param[out] ct ciphertext encrypting a bit
+         * @param[out] m bit that ct is supposed to encrypt
+         * @return log_2(noise(ct))
+         */
+        double noise(const Ctxt_LWE& ct, int m) const;
+
 };
 
 #endif

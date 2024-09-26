@@ -8,6 +8,10 @@
 #include <complex>
 #include <cassert>
 
+
+/* #define LOGQ_BOOT 20 */
+#define LOGQ_BOOT 16
+
 using namespace NTL;
 
 enum SchemeType {NTRU, LWE};
@@ -58,10 +62,17 @@ inline void lazy_mod_q(std::vector<int>& output, const std::vector<long>& input,
         *oit = static_cast<int>(lazy_mod_q(*iit, q, half_q));
 }
 
+
+
+
 /** ciphertext modulus of the ring-based scheme used 
  * for bootstrapping keys and test vectors/lookup-table encodings
  */
+#if LOGQ_BOOT == 16
+const int q_boot = (1 << 16) + 1; // 2^16 + 1, prime
+#else 
 const int q_boot = 912829; // ~2^19.8, prime
+#endif                            
 const long q_boot_long = long(q_boot);
 
 //half of the above modulus
@@ -204,10 +215,17 @@ class Param
                 q_base = 92683; // ~2^16.5, prime
                 n = 610;
 
-                B_bsk[0] = 8;
-                B_bsk[1] = 16;
-                shift_bsk[0] = 3;
-                shift_bsk[1] = 4;
+                // now choose the decomposition bases
+                #if LOGQ_BOOT == 16
+                shift_bsk[0] = 2; // log2(B_0)
+                shift_bsk[1] = 2; // log2(B_1)
+                #else 
+                shift_bsk[0] = 3; // log2(B_0)
+                shift_bsk[1] = 3; // log2(B_1)
+                #endif                            
+
+                B_bsk[0] = 1 << shift_bsk[0]; // B_0 (first decomposition basis)
+                B_bsk[1] = 1 << shift_bsk[1]; // B_1 (second decomposition basis)
                 bsk_partition[0] = 140;
                 bsk_partition[1] = 470;
             }

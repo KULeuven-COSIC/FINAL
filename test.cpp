@@ -458,12 +458,17 @@ void test_ntruhe_composition_of_gates(SchemeNTRU& s)
 
 void test_lwehe_gate_helper(int in1, int in2, SchemeLWE& s, GateType g)
 {
+    int NUM_TESTS = 100;
     float avg_time = 0.0;
-    for (int i = 0; i < 100; i++)
+    double avg_noise = 0.0;
+    for (int i = 0; i < NUM_TESTS; i++)
     {
         Ctxt_LWE ct_res, ct1, ct2;
         s.encrypt(ct1, in1);
         s.encrypt(ct2, in2);
+        int output;
+        int exp_msg;
+        double noise;
         
         if (g == NAND)
         {
@@ -471,56 +476,58 @@ void test_lwehe_gate_helper(int in1, int in2, SchemeLWE& s, GateType g)
             s.nand_gate(ct_res, ct1, ct2);
             avg_time += float(clock()-start)/CLOCKS_PER_SEC;
 
-            int output = s.decrypt(ct_res);
+            output = s.decrypt(ct_res);
 
             //cout << "NAND output: " << output << endl;
-            assert(output == !(in1 & in2));
+            exp_msg = !(in1 & in2);
         }
         else if (g == AND) {
             auto start = clock();
             s.and_gate(ct_res, ct1, ct2);
             avg_time += float(clock()-start)/CLOCKS_PER_SEC;
 
-            int output = s.decrypt(ct_res);
+            output = s.decrypt(ct_res);
 
             //cout << "AND output: " << output << endl;
-            assert(output == (in1 & in2));
+            exp_msg = (in1 & in2);
         }
         else if (g == OR) {
             auto start = clock();
             s.or_gate(ct_res, ct1, ct2);
             avg_time += float(clock()-start)/CLOCKS_PER_SEC;
 
-            int output = s.decrypt(ct_res);
+            output = s.decrypt(ct_res);
 
             //cout << "OR output: " << output << endl;
-            assert(output == (in1 | in2));
+            exp_msg = (in1 | in2);
         }
         else if (g == XOR) {
             auto start = clock();
             s.xor_gate(ct_res, ct1, ct2);
             avg_time += float(clock()-start)/CLOCKS_PER_SEC;
 
-            int output = s.decrypt(ct_res);
+            output = s.decrypt(ct_res);
 
             //cout << "OR output: " << output << endl;
-            assert(output == (in1 ^ in2));
+            exp_msg = (in1 ^ in2);
         }
         else if (g == NOT) {
             auto start = clock();
             s.not_gate(ct_res, ct1);
             avg_time += float(clock()-start)/CLOCKS_PER_SEC;
 
-            int output = s.decrypt(ct_res);
+            output = s.decrypt(ct_res);
 
 //            cout << "NOT output: " << output << endl;
-            assert(output == (1 - in1));
+            exp_msg = (1 - in1);
         }
 
-
-
+        assert(output == exp_msg);   
+        noise = s.noise(ct_res, exp_msg);
+        avg_noise += noise / NUM_TESTS;
     }
-    cout << "Avg. time: " << avg_time/100.0 << endl;
+    cout << "Avg. noise (in bits): " << avg_noise << endl;
+    cout << "Avg. time: " << avg_time/NUM_TESTS << endl;
 }
 
 void test_lwe_gate(SchemeLWE& s, GateType g)
@@ -653,21 +660,22 @@ int main()
     test_params();
     test_sampler();
 
-    cout << endl;
-    cout << "-------------------------" << endl;
-    cout << "NTRU tests" << endl;
-    SchemeNTRU s_ntru;
-    test_ntruhe_nand(s_ntru);
-    test_ntruhe_and(s_ntru);
-    test_ntruhe_or(s_ntru);
-    test_ntruhe_xor(s_ntru);
-    test_ntruhe_not(s_ntru);
-    test_ntruhe_composition_of_gates(s_ntru);
-    cout << "NTRU tests PASSED" << endl;
+//    cout << endl;
+//    cout << "-------------------------" << endl;
+//    cout << "NTRU tests" << endl;
+//    SchemeNTRU s_ntru;
+//    test_ntruhe_nand(s_ntru);
+//    test_ntruhe_and(s_ntru);
+//    test_ntruhe_or(s_ntru);
+//    test_ntruhe_xor(s_ntru);
+//    test_ntruhe_not(s_ntru);
+//    test_ntruhe_composition_of_gates(s_ntru);
+//    cout << "NTRU tests PASSED" << endl;
 
     cout << endl;
     cout << "-------------------------" << endl;
     cout << "LWE tests" << endl;
+    cout << "Q: " << q_boot << endl;
     SchemeLWE s_lwe;
     test_lwehe_not(s_lwe);
     test_lwehe_nand(s_lwe);

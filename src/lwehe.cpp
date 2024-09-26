@@ -492,3 +492,16 @@ void SchemeLWE::not_gate(Ctxt_LWE& ct_res, const Ctxt_LWE& ct) const
     ct_res = parLWE.delta_base - ct;
 }
 
+
+double SchemeLWE::noise(const Ctxt_LWE& ct, int m) const
+{
+    int noise = ct.b - parLWE.delta_base * m;
+    for (int i = 0; i < parLWE.n; i++)
+    {
+        noise += ct.a[i] * sk_base[i];
+    }
+    noise = parLWE.mod_q_base(noise);
+    if (0 == noise)
+        return 0;
+    return log(abs(noise)) / log(2);
+}
